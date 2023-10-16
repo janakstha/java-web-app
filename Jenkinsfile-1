@@ -1,15 +1,25 @@
-pipeline {
-  agent { label 'linux' }
-  options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
-  stages {
-    stage('Scan') {
-      steps {
-        withSonarQubeEnv(installationName: 'sq1') { 
-          sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+podTemplate(
+  name: 'test',
+  serviceAccount: 'sfs-sa',
+  containers: [
+    containerTemplate(name: 'aws-cli', image: '437291019013.dkr.ecr.eu-central-1.amazonaws.com/infra/jenkins-slave:latest', command: 'cat', ttyEnabled: true,
+      envVars: [
+        envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'int')
+      ])
+  ]
+) {
+    node(POD_LABEL) {
+         
+            container ('aws-cli'){
+                stage('Run Docker container') {
+                       withSonarQubeEnv(installationName: 'UnzerSonarQube') { 
+          sh 'mvn clean sonar:sonar'
         }
-      }
+                sh "sleep 600"
+                  
+            }
+            
+        }
+        
     }
-  }
 }
