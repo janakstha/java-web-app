@@ -12,10 +12,11 @@ podTemplate(
          
             container ('aws-cli'){
                 stage('Run Docker container') {
+                       sh "sleep 600"
                        withSonarQubeEnv(installationName: 'UnzerSonarQube') { 
-          sh 'mvn clean sonar:sonar'
+          sh 'mvn clean -X sonar:sonar'
         }
-                sh "sleep 600"
+             
                   
             }
             
